@@ -1,4 +1,4 @@
-import { useBoard } from "@/hooks/useBoard";
+import { useBoard } from "@/hooks/useBoard.js";
 
 type Props = { boardId: number };
 export default function Board({ boardId }: Props) {

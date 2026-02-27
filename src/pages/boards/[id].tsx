@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import type { DropResult } from "@hello-pangea/dnd";
 import { DragDropContext } from "@hello-pangea/dnd";
-import { useBoard } from "../../hooks/useBoard";
-import Column from "../../components/Column";
-import TaskModal from "../../components/TaskModal";
-import Skeleton from "../../components/Skeleton";
-import type { Task } from "../../types";
+import { useBoard } from "../../hooks/useBoard.js";
+import Column from "../../components/Column.js";
+import TaskModal from "../../components/TaskModal.js";
+import Skeleton from "../../components/Skeleton.js";
+import type { Task } from "../../types/index.js";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function BoardDetailsPage() {

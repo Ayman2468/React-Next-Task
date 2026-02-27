@@ -1,4 +1,4 @@
-import type { Board, CreateBoardInput, Task } from "../types";
+import type { Board, CreateBoardInput, Task } from "../types/index.js";
 
 let boardsDB: Board[] = [
   {

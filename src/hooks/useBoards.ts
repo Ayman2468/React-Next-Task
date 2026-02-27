@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as api from "../api/boards";
-import type { Board, CreateBoardInput } from "../types";
+import * as api from "../api/boards.js";
+import type { Board, CreateBoardInput } from "../types/index.js";
 
 export const useBoards = (page: number, perPage: number) => {
   const queryClient = useQueryClient();

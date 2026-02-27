@@ -1,5 +1,5 @@
 import { Draggable } from "@hello-pangea/dnd";
-import type { Task } from "../types";
+import type { Task } from "../types/index.js";
 
 type Props = {
   task: Task;

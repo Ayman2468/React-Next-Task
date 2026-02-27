@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
-import * as api from "../api/boards";
-import type { Board, Task, Activity } from "../types";
+import * as api from "../api/boards.js";
+import type { Board, Task, Activity } from "../types/index.js";
 import type { DropResult } from "@hello-pangea/dnd";
 import { useState, useEffect } from "react";
 

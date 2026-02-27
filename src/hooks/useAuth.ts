@@ -1,4 +1,4 @@
-import { getSession, setSession, clearSession } from "../utils/storage";
+import { getSession, setSession, clearSession } from "../utils/storage.js";
 
 export const useAuth = () => {
   const login = (data: { email: string }) => {

@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import BoardsPage from "./pages/boards/BoardsPage";
-import BoardDetailsPage from "./pages/boards/[id]";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import Login from "./pages/Login.js";
+import Dashboard from "./pages/Dashboard.js";
+import BoardsPage from "./pages/boards/BoardsPage.js";
+import BoardDetailsPage from "./pages/boards/[id].js";
+import ProtectedRoute from "./routes/ProtectedRoute.js";
 
 export default function App() {
   return (

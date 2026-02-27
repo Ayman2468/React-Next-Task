@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import TaskModal from '@/components/TaskModal';
+import TaskModal from '@/components/TaskModal.js';
 
 test('TaskModal displays task title', () => {
   render(

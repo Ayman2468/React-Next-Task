@@ -1,5 +1,5 @@
 import { Droppable, Draggable } from "@hello-pangea/dnd";
-import type { Column as ColumnType, Task, Board } from "../types";
+import type { Column as ColumnType, Task, Board } from "../types/index.js";
 import type { Dispatch, SetStateAction } from "react";
 
 type Props = {

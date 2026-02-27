@@ -7,10 +7,10 @@ import fetch, { Request, Response, Headers } from 'node-fetch';
 
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Board from "@/components/Board";
+import Board from "@/components/Board.js";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import mockBoardData from "@/__mocks__/mockBoard";
+import mockBoardData from "@/__mocks__/mockBoard.js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // -----------------------------

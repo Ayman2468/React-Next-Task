@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Board from '@/components/Board';
+import Board from '@/components/Board.js';
 import '@testing-library/jest-dom';
-import mockBoardData from '@/__mocks__/mockBoard';
+import mockBoardData from '@/__mocks__/mockBoard.js';
 
 // Ensure global.fetch exists
 if (!(global as any).fetch) {
