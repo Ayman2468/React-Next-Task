@@ -22,7 +22,7 @@ export default function Column({
     .filter((t): t is Task => t !== undefined);
 
   return (
-    <div className="w-64 bg-gray-100 rounded p-2 flex-shrink-0">
+    <div className="w-64 bg-gray-100 rounded p-2 shrink-0">
       <div className="flex justify-between items-center mb-2">
         <h2 className="font-bold">{column.name}</h2>
         {openNewTaskModal && (
@@ -40,7 +40,7 @@ export default function Column({
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`min-h-[200px] p-1 rounded ${
+            className={`min-h-50 p-1 rounded ${
               snapshot.isDraggingOver ? "bg-blue-100" : ""
             }`}
           >
