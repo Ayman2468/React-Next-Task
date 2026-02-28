@@ -178,6 +178,7 @@ export const useBoard = (boardId) => {
     const taskId = Number(draggableId);
     const task = board.tasks.find(t => t.id === taskId);
     if (!task) return;
+
     const previousBoard = { ...board };
 
     if (isOffline) {
@@ -190,23 +191,30 @@ export const useBoard = (boardId) => {
 
     queryClient.setQueryData(["board", boardId], oldBoard => {
       if (!oldBoard) return undefined;
+
       const newColumns = oldBoard.columns.map(col => {
-        if (col.id.toString() === source.droppableId)
+        // Remove task from source column
+        if (col.id.toString() === source.droppableId) {
           return { ...col, taskIds: col.taskIds.filter(id => id !== taskId) };
+        }
+        // Insert task into destination column (avoid duplicates)
         if (col.id.toString() === destination.droppableId) {
-          const newTaskIds = [...col.taskIds];
-          newTaskIds.splice(destination.index, 0, taskId);
+          const newTaskIds = col.taskIds.filter(id => id !== taskId); // remove existing if any
+          newTaskIds.splice(destination.index, 0, taskId);             // insert at correct index
           return { ...col, taskIds: newTaskIds };
         }
         return col;
       });
+
       const newTasks = oldBoard.tasks.map(t =>
         t.id === taskId ? { ...t, columnId: Number(destination.droppableId) } : t
       );
+
       const newActivities = [
         ...(oldBoard.activities || []),
         { id: Date.now(), message: `Task "${task.title}" moved from column ${source.droppableId} to ${destination.droppableId}`, createdAt: new Date().toISOString() },
       ];
+
       const updatedBoard = { ...oldBoard, columns: newColumns, tasks: newTasks, activities: newActivities };
       saveBoardToLocalStorage(updatedBoard);
       return updatedBoard;
