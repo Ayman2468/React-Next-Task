@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as api from "../api/boards";
+import * as api from "../api/boards.js";
 export const useBoards = (page, perPage) => {
     const queryClient = useQueryClient();
     const query = useQuery({

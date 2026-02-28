@@ -14,7 +14,8 @@
     "paths": {
       "@/*": ["*"]            // maps '@/' to 'src/'
     },
-    "outDir": "dist"
+  "rootDir": "src",
+  "outDir": "dist"
   },
   "include": ["src"]
 }

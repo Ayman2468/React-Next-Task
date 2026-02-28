@@ -7,10 +7,10 @@ global.Response = Response;
 global.Headers = Headers;
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Board from "@/components/Board";
+import Board from "@/components/Board.js";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import mockBoardData from "@/__mocks__/mockBoard";
+import mockBoardData from "@/__mocks__/mockBoard.js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // -----------------------------
 // React Query wrapper for tests

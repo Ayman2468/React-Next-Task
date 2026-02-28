@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, QueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "../api/boards.js";
 import type { Board, Task, Activity } from "../types/index.js";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -10,10 +10,10 @@ type QueueOp = {
   data: Omit<Task, "id"> | Partial<Task>;
 };
 
-export const useBoard = (boardId: number) => {
-  // ✅ Always call the hook unconditionally
-  const queryClient = useQueryClient();
+const STORAGE_KEY = "kanban_boards";
 
+export const useBoard = (boardId: number) => {
+  const queryClient = useQueryClient();
   const [offlineQueue, setOfflineQueue] = useState<QueueOp[]>([]);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [syncing, setSyncing] = useState(false);
@@ -30,6 +30,15 @@ export const useBoard = (boardId: number) => {
       window.removeEventListener("offline", goOffline);
     };
   }, []);
+
+  // ------------------- LocalStorage helpers -------------------
+  const saveBoardToLocalStorage = (updatedBoard: Board) => {
+    const allBoards: Board[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const idx = allBoards.findIndex(b => b.id === updatedBoard.id);
+    if (idx > -1) allBoards[idx] = updatedBoard;
+    else allBoards.push(updatedBoard);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allBoards));
+  };
 
   // Main board query
   const query = useQuery<Board, Error>({
@@ -53,14 +62,11 @@ export const useBoard = (boardId: number) => {
       try {
         const results = await Promise.all(
           offlineQueue.map(op => {
-            if (op.type === "create")
-              return api.createTask(boardId, op.data as Omit<Task, "id">);
-            if (op.type === "update" && op.taskId)
-              return api.updateTask(boardId, op.taskId, op.data as Partial<Task>);
+            if (op.type === "create") return api.createTask(boardId, op.data as Omit<Task, "id">);
+            if (op.type === "update" && op.taskId) return api.updateTask(boardId, op.taskId, op.data as Partial<Task>);
             return Promise.resolve();
           })
         );
-
         const failed = results.some(r => r instanceof Error);
         if (!failed) setOfflineQueue([]);
         else setSyncFailed(true);
@@ -84,9 +90,7 @@ export const useBoard = (boardId: number) => {
     onSuccess: (newTask: Task) => {
       queryClient.setQueryData<Board | undefined>(["board", boardId], oldBoard => {
         if (!oldBoard) return undefined;
-        const newTasks = oldBoard.tasks.some(t => t.id === newTask.id)
-          ? oldBoard.tasks
-          : [...oldBoard.tasks, newTask];
+        const newTasks = oldBoard.tasks.some(t => t.id === newTask.id) ? oldBoard.tasks : [...oldBoard.tasks, newTask];
         const newColumns = oldBoard.columns.map(col =>
           col.id === newTask.columnId
             ? { ...col, taskIds: col.taskIds.includes(newTask.id) ? col.taskIds : [...col.taskIds, newTask.id] }
@@ -96,17 +100,14 @@ export const useBoard = (boardId: number) => {
           ...(oldBoard.activities || []),
           { id: Date.now(), message: `Task "${newTask.title}" created`, createdAt: new Date().toISOString() },
         ];
-        return { ...oldBoard, tasks: newTasks, columns: newColumns, activities: newActivities };
+        const updatedBoard = { ...oldBoard, tasks: newTasks, columns: newColumns, activities: newActivities };
+        saveBoardToLocalStorage(updatedBoard);
+        return updatedBoard;
       });
     },
   });
 
-  const updateTask = useMutation<
-    Task,
-    Error,
-    { taskId: number; data: Partial<Task> },
-    { previousBoard?: Board }
-  >({
+  const updateTask = useMutation<Task, Error, { taskId: number; data: Partial<Task> }, { previousBoard?: Board }>({
     mutationFn: async ({ taskId, data }) => {
       if (isOffline) {
         setOfflineQueue(q => [...q, { type: "update", taskId, data }]);
@@ -121,24 +122,14 @@ export const useBoard = (boardId: number) => {
       if (previousBoard) {
         queryClient.setQueryData<Board>(["board", boardId], oldBoard => {
           if (!oldBoard) return oldBoard;
-
-          const newTasks = oldBoard.tasks.map(t =>
-            t.id === taskId ? { ...t, ...data } : t
-          );
-
+          const newTasks = oldBoard.tasks.map(t => (t.id === taskId ? { ...t, ...data } : t));
           const task = oldBoard.tasks.find(t => t.id === taskId);
           const newActivities: Activity[] = task
-            ? [
-                ...(oldBoard.activities || []),
-                {
-                  id: Date.now(),
-                  message: `Task "${task.title}" updated`,
-                  createdAt: new Date().toISOString(),
-                },
-              ]
+            ? [...(oldBoard.activities || []), { id: Date.now(), message: `Task "${task.title}" updated`, createdAt: new Date().toISOString() }]
             : oldBoard.activities || [];
-
-          return { ...oldBoard, tasks: newTasks, activities: newActivities };
+          const updatedBoard = { ...oldBoard, tasks: newTasks, activities: newActivities };
+          saveBoardToLocalStorage(updatedBoard);
+          return updatedBoard;
         });
       }
 
@@ -147,6 +138,7 @@ export const useBoard = (boardId: number) => {
     onError: (_err, _variables, context) => {
       if (context?.previousBoard) {
         queryClient.setQueryData(["board", boardId], context.previousBoard);
+        saveBoardToLocalStorage(context.previousBoard);
       }
     },
   });
@@ -158,14 +150,13 @@ export const useBoard = (boardId: number) => {
         if (!oldBoard) return undefined;
         const deletedTask = oldBoard.tasks.find(t => t.id === taskId);
         const newTasks = oldBoard.tasks.filter(t => t.id !== taskId);
-        const newColumns = oldBoard.columns.map(col => ({
-          ...col,
-          taskIds: col.taskIds.filter(id => id !== taskId),
-        }));
+        const newColumns = oldBoard.columns.map(col => ({ ...col, taskIds: col.taskIds.filter(id => id !== taskId) }));
         const newActivities: Activity[] = deletedTask
           ? [...(oldBoard.activities || []), { id: Date.now(), message: `Task "${deletedTask.title}" deleted`, createdAt: new Date().toISOString() }]
           : oldBoard.activities;
-        return { ...oldBoard, tasks: newTasks, columns: newColumns, activities: newActivities };
+        const updatedBoard = { ...oldBoard, tasks: newTasks, columns: newColumns, activities: newActivities };
+        saveBoardToLocalStorage(updatedBoard);
+        return updatedBoard;
       });
     },
   });
@@ -175,7 +166,9 @@ export const useBoard = (boardId: number) => {
     onSuccess: newActivity => {
       queryClient.setQueryData<Board | undefined>(["board", boardId], oldBoard => {
         if (!oldBoard) return undefined;
-        return { ...oldBoard, activities: [...(oldBoard.activities || []), newActivity] };
+        const updatedBoard = { ...oldBoard, activities: [...(oldBoard.activities || []), newActivity] };
+        saveBoardToLocalStorage(updatedBoard);
+        return updatedBoard;
       });
     },
   });
@@ -190,7 +183,6 @@ export const useBoard = (boardId: number) => {
     const taskId = Number(draggableId);
     const task = board.tasks.find(t => t.id === taskId);
     if (!task) return;
-
     const previousBoard = { ...board };
 
     if (isOffline) {
@@ -203,7 +195,6 @@ export const useBoard = (boardId: number) => {
 
     queryClient.setQueryData<Board | undefined>(["board", boardId], oldBoard => {
       if (!oldBoard) return undefined;
-
       const newColumns = oldBoard.columns.map(col => {
         if (col.id.toString() === source.droppableId)
           return { ...col, taskIds: col.taskIds.filter(id => id !== taskId) };
@@ -214,26 +205,20 @@ export const useBoard = (boardId: number) => {
         }
         return col;
       });
-
-      const newTasks = oldBoard.tasks.map(t =>
-        t.id === taskId ? { ...t, columnId: Number(destination.droppableId) } : t
-      );
-
+      const newTasks = oldBoard.tasks.map(t => (t.id === taskId ? { ...t, columnId: Number(destination.droppableId) } : t));
       const newActivities: Activity[] = [
         ...(oldBoard.activities || []),
-        {
-          id: Date.now(),
-          message: `Task "${task.title}" moved from column ${source.droppableId} to ${destination.droppableId}`,
-          createdAt: new Date().toISOString()
-        },
+        { id: Date.now(), message: `Task "${task.title}" moved from column ${source.droppableId} to ${destination.droppableId}`, createdAt: new Date().toISOString() },
       ];
-
-      return { ...oldBoard, columns: newColumns, tasks: newTasks, activities: newActivities };
+      const updatedBoard = { ...oldBoard, columns: newColumns, tasks: newTasks, activities: newActivities };
+      saveBoardToLocalStorage(updatedBoard);
+      return updatedBoard;
     });
 
     api.updateTask(boardId, taskId, { columnId: Number(destination.droppableId), order: destination.index })
       .catch(() => {
         queryClient.setQueryData(["board", boardId], previousBoard);
+        saveBoardToLocalStorage(previousBoard);
         alert("Failed to move task. Changes rolled back.");
       });
   };

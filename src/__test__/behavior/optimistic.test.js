@@ -1,7 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Board from '@/components/Board';
+import Board from '@/components/Board.js';
 import '@testing-library/jest-dom';
 // Ensure global.fetch exists
 if (!global.fetch) {

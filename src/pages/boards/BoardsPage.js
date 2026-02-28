@@ -1,10 +1,10 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useBoards } from "../../hooks/useBoards";
-import Skeleton from "../../components/Skeleton";
-import BoardFormModal from "../../components/BoardFormModal";
-import { getPrompts, executePrompt } from "../../api/ai";
+import { useBoards } from "../../hooks/useBoards.js";
+import Skeleton from "../../components/Skeleton.js";
+import BoardFormModal from "../../components/BoardFormModal.js";
+import { getPrompts, executePrompt } from "../../api/ai.js";
 export default function BoardsPage() {
     const navigate = useNavigate();
     const [page, setPage] = useState(1);
@@ -29,7 +29,6 @@ export default function BoardsPage() {
                 return { name: file.replace(/\.md$/, ""), content };
             }));
             setPrompts(promptsWithContent);
-            console.log(promptsWithContent);
         })
             .catch(err => console.error(err));
     }, []);

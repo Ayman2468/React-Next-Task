@@ -36,7 +36,6 @@ export default function BoardsPage() {
           })
         );
         setPrompts(promptsWithContent);
-        console.log(promptsWithContent);
       })
       .catch(err => console.error(err));
   }, []);

@@ -31,8 +31,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // Testing utilities
 // ==============================
 import { render, screen } from "@testing-library/react";
-import Board from "@/components/Board";
-import mockBoardData from "@/__mocks__/mockBoard";
+import Board from "@/components/Board.js";
+import mockBoardData from "@/__mocks__/mockBoard.js";
 // ==============================
 // MSW Handlers
 // ==============================

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Project 1",
+    "columns": [
+      { "id": 1, "name": "Todo", "taskIds": [1, 2] },
+      { "id": 2, "name": "In Progress", "taskIds": [] },
+      { "id": 3, "name": "Done", "taskIds": [] }
+    ],
+    "tasks": [
+      { "id": 1, "title": "Task 1", "columnId": 1, "order": 0 },
+      { "id": 2, "title": "Task 2", "columnId": 1, "order": 1 }
+    ],
+    "activities": []
+  }
+]

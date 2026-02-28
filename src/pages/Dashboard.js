@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth.js";
 import { Outlet, useNavigate } from "react-router-dom";
-import BoardsPage from "./boards/BoardsPage";
+import BoardsPage from "./boards/BoardsPage.js";
 export default function Dashboard() {
     const { logout } = useAuth();
     const navigate = useNavigate();

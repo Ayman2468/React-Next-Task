@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { render, screen } from '@testing-library/react';
-import TaskModal from '@/components/TaskModal';
+import TaskModal from '@/components/TaskModal.js';
 test('TaskModal displays task title', () => {
     render(_jsx(TaskModal, { isOpen: true, onSubmit: () => { }, task: {
             id: 1,
